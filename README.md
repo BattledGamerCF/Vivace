@@ -1,6 +1,6 @@
 # Vivace (working name): an OpenJDK build tuned for games on Apple Silicon Macs
 
-A build of OpenJDK 27 (and 25) from the upstream jdk27u / jdk25u repositories (the same sources Azul's Zulu and other
+A build of OpenJDK 25 (and 27) from the upstream jdk25u / jdk27u repositories (the same sources Azul's Zulu and other
 builds come from) with a small set of measured patches for games, Minecraft first: shorter and rarer garbage-collection
 pauses on Apple Silicon. Made to pair with the Cadence Minecraft mod, but it is a separate download and works without it.
 

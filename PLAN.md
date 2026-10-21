@@ -47,10 +47,14 @@ shaders), GNU make 3.81, bash 3.2, no autoconf yet (Homebrew), boot JDK Zulu 25.
 - [x] Flag tests on 25 (UseSIMDForMemoryOps, isb spin-wait): no gain (CPU benchmark ABBA)
 - [x] JDK 26 built (boot JDK), JDK 27.0.1 built; Minecraft 26.3 + Fabric + Cadence run on 27 unchanged
 - [x] Plain 27 vs Vivace 25: same CPU. Patches ported to 27 (10 files, 151 lines)
-- [x] Vivace 27 vs Vivace 25: heap -25% (about 250 MB), young pauses over 8 ms halved, same total pause time
+- [x] Vivace 27 vs Vivace 25: smaller heap in 4-minute runs, but in 14-34-minute play JDK 26+'s heap sizing grows the
+      heap and eden (193 vs 41-51 young pauses over 8 ms, ~200 MB more resident). Cause found (concurrent marking CPU
+      counted as GC overhead); fix = young generation capped at 128 MB on Java 26+ (Cadence default): then 27 = 25.
+      Vivace 25 stays recommended (LTS, no tuning needed)
 - [x] Release script: either line, vendor/bug URLs, runtime release file, build scripts in the source archive, game runtime
       without the >32 GB-heap class-data archives; dist/vivace-27.0.1+9-vivace.1/
-- [ ] jtreg on Vivace 27 (gc/g1, class unloading, gc/arguments, dcmd/vm, runtime/Thread)
-- [ ] 30-minute soak and a production launch (18 mods) on Vivace 27
+- [x] jtreg on Vivace 27 (gc/g1, class unloading, gc/arguments, dcmd/vm, runtime/Thread): 171 passed, 0 failed
+- [x] Production launch (18 mods) on Vivace 27, directly and through Cadence's switch (Cadence beta.12)
+- [x] 34-minute soak on Vivace 27: no crash, metaspace/code cache flat; heap committed grew to the 2 GB cap (above)
 - [x] Legal pass: research/LEGAL2.md (model, checklist, user-only steps); Cadence's opt-in Java switch (Video Settings >
       Java), README/INSTALL licence and trademark wording

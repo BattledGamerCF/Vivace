@@ -5,8 +5,10 @@ Two downloads; either works:
   For playing.
 - `vivace-VERSION-macos-aarch64-jdk.tar.gz` (about 220 MB): the full JDK (compiler and tools included). For modding.
 
-Minecraft 26.3 runs on Vivace 25 and Vivace 27. Vivace 27 is the newer line (G1 from JDK 27: about a quarter less heap
-and half as many long pauses in Cadence's tests); Vivace 25 is there for anything that needs Java 25 exactly.
+Minecraft 26.3 runs on Vivace 25 and Vivace 27. **Vivace 25 is the one to use**: it is the long-term-support line and
+plays best as it is. Vivace 27 (the newer JDK) plays the same with the Cadence mod, which caps the young generation on
+Java 26 and newer; without Cadence, add `-XX:MaxNewSize=128m` to the launcher's Java arguments, or JDK 27's heap sizing
+lets the heap and the garbage-collection pauses grow during long sessions (PATCHES.md).
 
 ## 1. Unpack
 Double-click the .tar.gz (or `tar -xzf FILE`). You get a folder ending in `.jdk`. Put it somewhere permanent:

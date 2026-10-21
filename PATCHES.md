@@ -96,10 +96,56 @@ Fabric and Cadence run on 27 unchanged.
 | Remark in play (total, longest) | 54 ms, 26.7 / 28 ms, 13.6 | 51 ms, 22.1 / 65 ms, 27.5 |
 | code cache filled during the run | 27 / 24 MB | 34 / 26 MB |
 
-  JDK 27's G1 keeps a smaller heap (about 250 MB less) and collects it in more, shorter young pauses: the same total
-  pause time, half as many over 8 ms. The unloading Remarks still land in menus.
+  **Over 4 minutes only.** JDK 27's G1 starts with a smaller heap; the longer runs below show it doesn't stay that way.
+
+### Longer play: 27's heap sizing works against a game (14-minute soaks, same route, -Xmx2048m)
+JDK 26 changed G1's heap sizing: after every young collection it compares "GC CPU usage" with GCTimeRatio (4%) and
+expands or shrinks the heap, and that usage now includes the CPU time of the concurrent GC threads (marking,
+refinement) divided by the core count. A marking cycle's CPU time is charged to the next one or two short intervals,
+so each cycle Cadence's GC policy starts (one every ~25 s) shows up as a 20-70% spike; four spikes and G1 expands the heap
+by hundreds of MB at once (log: 679 -> 1,227 MB in one step). G1 then fills the bigger heap with eden (its pause goal is
+200 ms), and young pause length follows eden size. Same Mac, same hour, 14-minute flights with menus:
+
+| run | heap committed (end) | game RSS avg / max | eden avg | young pauses | over 8 ms | longest |
+|---|---|---|---|---|---|---|
+| Vivace 25 (x2) | 1,126 MB (mostly 630-760) | 940 / 1,117 MB | 90-110 MB | 1,574 / 1,751 | **41 / 51** | 17 / 20 ms |
+| Vivace 27 | 1,741 MB | 1,136 / 1,495 MB | 535 MB | 298 | 193 | 35 ms |
+| Vivace 27, GCTimeRatio=12 | 1,638 MB | 1,151 / 1,503 MB | | 286 | 169 | 33 ms |
+| Vivace 27 + G1HeapSizingUsesConcurrentCPU off (x2) | 1,536 MB | 1,085 / 1,351 MB | 294 MB | 535 / 417 | 138 / 196 | 43 / 26 ms |
+| the same + MaxGCPauseMillis=10 | 952 MB (stable 900-1,024) | | 289 MB | 539 | 112 | 26 ms |
+| Vivace 25 + MaxGCPauseMillis=10 | 1,126 MB | | | 1,890 | 77 | 21 ms |
+| **Vivace 27 + MaxNewSize=128m** (Cadence's default on Java 26+) | 693-1,126 MB | 866 / 1,001 MB | | 1,435 | 58 | 21 ms |
+| Vivace 27 + the heap-sizing patch + MaxNewSize=128m | 621-712 MB | 883 / 1,009 MB | 82 MB | 1,725 | 41 | 18 ms |
+| Vivace 25 + MaxNewSize=128m | 621-694 MB | 833 / 978 MB | | 2,030 | 79 | 60 ms |
+
+Per 100 MB of eden JDK 27's young pauses are cheaper (1.7-1.9 ms vs 2.2-2.6 ms on 25: the JDK 26/27 G1 work does
+pay off); 25 wins because its tighter heap keeps eden near 100 MB, so its pauses stay at 2-3 ms. The 34-minute soak on
+Vivace 27 reached the 2,048 MB cap after 25 minutes (Vivace 25's soak: 650-1,126 MB).
+
+**Outcome.** Capping the young generation (`-XX:MaxNewSize=128m`) brings Java 27 back to what Java 25 does on its own:
+eden ~80 MB, 2.4 ms young pauses, the same resident memory. Cadence now passes it on Java 26 and newer (any vendor's:
+stock JDK 26/27 have the same heap sizing), and not on 25, where it only adds collections. With it, Vivace 27 matches
+Vivace 25 but does not beat it: the cheaper JDK 27 young collections don't show at an 80 MB eden, and the rest is
+within run-to-run noise on a fanless Mac that heats up over a day of runs. **Vivace 25 stays the recommended build**: it
+is the long-term-support line (JDK 27 is a six-month release), and it needs no tuning. Vivace 27 is built, tested and
+packaged (dist/vivace-27.0.1+9-vivace.1) for whoever wants the newer JDK.
+- Not kept: **G1HeapSizingUsesConcurrentCPU** (a flag making 27's heap sizing count pause time only, as 25 did; off by
+  default with UseThreadQoS; branch exp-compiler-qos): alone it slowed the heap growth but kept long eden pauses (138 /
+  196 over 8 ms); on top of the young-generation cap it left resident memory the same. GCTimeRatio=12 and
+  MaxGCPauseMillis=10: no fix (above).
+- Not kept: **UseUtilityQoSForCompilers** (JIT compiler threads on utility QoS, i.e. efficiency cores, so compilation
+  leaves the performance cores to the game): crowded-scene ABBA, fps 931 / 906 off vs 978 / 913 on, render CPU 0.52 / 0.51
+  vs 0.49 / 0.52 ms, tick time within 0.3 ms: no difference beyond noise.
 
 ## Stability
+- **Vivace 27**: jtreg (8.2.1+1, test natives built with `make test-image-hotspot-jtreg-native`) on gc/g1, gc/class_unloading,
+  runtime/ClassUnload, gc/arguments, serviceability/dcmd/vm, runtime/Thread, gc/TestSystemGC: **171 passed, 0 failed**; 4
+  skipped by the tests themselves (no large pages on macOS, 8 GB is too little RAM for two of them), 15 not run (they
+  need a debug build or Linux: NUMA, glibc malloc). Production launch (the release jar + 17 other mods: Essential,
+  Lithium, JEI, Xaero's Minimap, Jade, ImmediatelyFast, Continuity, Dynamic FPS, EntityCulling, Mod Menu, ...): a flight,
+  menus, Video Settings, the benchmark and leaving the world, on Vivace 27 directly and through Cadence's Java switch
+  (launched on Zulu 25, restarted itself onto Vivace 27): the same log errors as on Vivace 25 (offline-account
+  sign-in messages, AppleSkin's Mod Menu hook without cloth-config), nothing from Java 27.
 - jtreg on the release build (G1ClassUnloadingInterval 4, compact headers on): test/hotspot/jtreg/gc/g1 61 passed, 14 not run
   (need debug-build options, WhiteBox or Linux NUMA), gc/class_unloading 5/5, runtime/ClassUnload 11/11. 0 failures.
 - 34-minute soak on the release runtime with Cadence: flight over new terrain, pause menu every ~70 s: no crash; metaspace
