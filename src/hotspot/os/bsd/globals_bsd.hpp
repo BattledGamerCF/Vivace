@@ -37,7 +37,15 @@
                                                                         \
   AARCH64_ONLY(develop(bool, AssertWXAtThreadSync, true,                \
           "Conservatively check W^X thread state at possible safepoint" \
-          "or handshake"))
+          "or handshake"))                                              \
+                                                                        \
+  product(bool, UseThreadQoS, true,                                     \
+          "macOS: give the JVM's own threads a quality-of-service class " \
+          "(with G1 or Parallel GC): the VM thread and the stop-the-"   \
+          "world GC workers user-interactive (fastest cores while the " \
+          "application is paused), concurrent GC and housekeeping "     \
+          "threads utility (efficiency cores, leaving the fast cores "  \
+          "to the application); Java and compiler threads unchanged")
 
 // end of RUNTIME_OS_FLAGS
 
