@@ -75,6 +75,8 @@ less heap on SPECjbb).
   flat (165-166 MB); code cache steady (profiled heap ~100 MB unallocated throughout; non-profiled -5 MB in 30 min); heap
   after GC 513-724 MB, no trend. In play: 179 Remarks, 253 ms in all, 8 over 8 ms, longest 29.7 ms (Zulu spends 200-250 ms
   of Remark in 4 minutes of the same flight). Unloading Remarks in menus: up to 65 ms.
+- **ParallelGCThreads=4** (one stop-the-world worker per performance core, with QoS): ABBA flight soaks: young pause time
+  1,703 / 1,953 ms (4 workers) vs 1,699 / 1,570 ms (8); over 8 ms 33 / 51 vs 30 / 23. The default 8 stays.
 - **AOT cache (JEP 514/515, a JDK 25 feature, not a patch)** for Minecraft + Fabric in the production setup: training run
   wrote 261 MB (908 classes skipped: everything Fabric's Knot loader loads, i.e. the game and mods); launch to in-world
   7-8 s without, 6-7 s with (1-s resolution, 3 each). The first JVM, before Cadence's Java-defaults restart, can't use a
