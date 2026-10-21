@@ -40,6 +40,9 @@ Manageable (-XX:G1ClassUnloadingInterval can be changed at run time through HotS
   stock G1 had 126 Remarks of 8-100 ms.
 
 ## Tried and not kept
+- **MaxTenuringThreshold=3** (promote new terrain data after 3 young collections instead of up to 15, so it is copied
+  fewer times): retried on Vivace, where extra marking cycles are cheap; ABBA flight soaks with menus: young pause time
+  1,420 / 1,590 vs 1,574 / 1,467 ms: no difference.
 - **-mcpu=apple-m1 + link-time-opt** (HotSpot and JDK C code built for Apple's cores, the JVM link-time optimized): flight
   soak x2 A/B against the same source built plainly: young pause time 2,009 / 1,827 vs 2,012 / 2,114 ms, Remark 144 / 158 vs
   170 / 165 ms, worst young pause 37 / 62 vs 20 / 28 ms: no difference beyond run-to-run noise. Not used (less to go wrong).

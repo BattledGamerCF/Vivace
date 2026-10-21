@@ -36,6 +36,8 @@ shaders), GNU make 3.81, bash 3.2, no autoconf yet (Homebrew), boot JDK Zulu 25.
 - [x] Patch: UseThreadQoS (worst young pauses about -1/3)
 - [x] Patch: G1ClassUnloadingInterval, manageable (Remark -39%; with Cadence scheduling, every in-play Remark 0.5-3.7 ms)
 - [x] -mcpu=apple-m1 + link-time-opt: measured, no gain, not used
-- [ ] Release build + packaging (build-tools/build-release.sh), ad-hoc signing, game runtime, source archive
-- [ ] Run Minecraft on the release runtime end to end (Cadence harness), production launch
+- [x] Release build + packaging (build-tools/build-release.sh), ad-hoc signing, game runtime, source archive
+- [x] Run Minecraft on the release runtime end to end (production launch, 18 mods); Zulu A/B (in-play Remark -73%)
+- [ ] jtreg: G1 + class unloading suites on the release build (running)
+- [ ] Long stability soak on the release runtime
 - [x] Windows/Linux: CROSS-PLATFORM.md (theoretical)
