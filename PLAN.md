@@ -38,6 +38,6 @@ shaders), GNU make 3.81, bash 3.2, no autoconf yet (Homebrew), boot JDK Zulu 25.
 - [x] -mcpu=apple-m1 + link-time-opt: measured, no gain, not used
 - [x] Release build + packaging (build-tools/build-release.sh), ad-hoc signing, game runtime, source archive
 - [x] Run Minecraft on the release runtime end to end (production launch, 18 mods); Zulu A/B (in-play Remark -73%)
-- [ ] jtreg: G1 + class unloading suites on the release build (running)
-- [ ] Long stability soak on the release runtime
+- [x] jtreg: G1 + class unloading suites: 77 passed, 0 failed
+- [x] 34-minute stability soak: no crash, no growth
 - [x] Windows/Linux: CROSS-PLATFORM.md (theoretical)

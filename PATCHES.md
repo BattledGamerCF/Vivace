@@ -67,3 +67,11 @@ JEP 519 (product in JDK 25) shrinks object headers from 12-16 to 8 bytes; upstre
 -XX:-UseCompressedClassPointers turns it back off with a warning). Cadence's Java defaults already set it, so with Cadence
 nothing changes; for other games it saves heap (Cadence measured ~23 MB of Minecraft's heap on 10-12; JEP 519: up to 22%
 less heap on SPECjbb).
+
+## Stability
+- jtreg on the release build (G1ClassUnloadingInterval 4, compact headers on): test/hotspot/jtreg/gc/g1 61 passed, 14 not run
+  (need debug-build options, WhiteBox or Linux NUMA), gc/class_unloading 5/5, runtime/ClassUnload 11/11. 0 failures.
+- 34-minute soak on the release runtime with Cadence: flight over new terrain, pause menu every ~70 s: no crash; metaspace
+  flat (165-166 MB); code cache steady (profiled heap ~100 MB unallocated throughout; non-profiled -5 MB in 30 min); heap
+  after GC 513-724 MB, no trend. In play: 179 Remarks, 253 ms in all, 8 over 8 ms, longest 29.7 ms (Zulu spends 200-250 ms
+  of Remark in 4 minutes of the same flight). Unloading Remarks in menus: up to 65 ms.
