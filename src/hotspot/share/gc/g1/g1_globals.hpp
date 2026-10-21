@@ -293,7 +293,7 @@
   develop(bool, G1VerifyBitmaps, false,                                     \
           "Verifies the consistency of the marking bitmaps")                \
                                                                             \
-  product(uint, G1ClassUnloadingInterval, 4,                                \
+  product(uint, G1ClassUnloadingInterval, 4, MANAGEABLE,                    \
           "With ClassUnloadingWithConcurrentMark, unload classes and "      \
           "compiled code in every Nth concurrent marking cycle only (1 is " \
           "every cycle, as upstream). Cycles started for code cache or "    \
