@@ -57,3 +57,10 @@ The long Remarks moved into the menu (up to 180 ms there, unseen). Young pauses 
 is accounted for: whichever runs second in a pair (hotter, fanless Air) shows more young-pause time and a bigger heap (G1
 grows the heap when GC takes a larger share of time): Vivace first 771 MB, Zulu second 1,001 MB; Zulu first 779 MB, Vivace
 second 1,229 MB. Flag defaults differ only in Azul's own CRS switches and the 25.0.5 Shenandoah changes.
+
+## 4. UseCompactObjectHeaders on by default
+JEP 519 (product in JDK 25) shrinks object headers from 12-16 to 8 bytes; upstream leaves it off. On by default here
+(the arguments code already turns on the object monitor table it needs when neither flag is given; a user's
+-XX:-UseCompressedClassPointers turns it back off with a warning). Cadence's Java defaults already set it, so with Cadence
+nothing changes; for other games it saves heap (Cadence measured ~23 MB of Minecraft's heap on 10-12; JEP 519: up to 22%
+less heap on SPECjbb).
