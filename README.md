@@ -18,7 +18,7 @@ compatibility. The name is a working name: no trademark search has been done (re
 | `src-game/` | worktree, branch `game`: patches on 25.0.2 (experiments, A/B) |
 | `src-release/` | worktree, branch `vivace-25.0.5`: patches on jdk-25.0.5-ga (Vivace 25) |
 | `src26/` | jdk26u at jdk-26.0.2.1-ga, unpatched: the boot JDK for building 27 (`build/boot/images/jdk`) |
-| `src27/` | jdk27u at jdk-27.0.1-ga, branch `vivace-27.0.1`: the same patches (Vivace 27); `build/plain` = unpatched 27 for A/B |
+| `src27/` | jdk27u at jdk-27.0.1-ga, branch `vivace-27.0.1`: the same patches (Vivace 27); branch `exp-compiler-qos`: the two experiments not kept (PATCHES.md) |
 | `dist/` | one folder per release: jdk, runtime and source archives, SHA256SUMS, docs |
 | `out/` | built JDK images (baseline, qos, unload, ...) and jtreg results |
 
