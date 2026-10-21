@@ -29,4 +29,12 @@ and code only every Nth cycle; cycles started because the code cache or metaspac
 grows without bound (turning class unloading off entirely, -XX:-ClassUnloadingWithConcurrentMark, made the code cache grow
 35 -> 100 MB in 4 minutes). Decided at the cycle's concurrent start (G1Policy::initiate_conc_mark), because it also decides
 how that pause marks roots: the root closures and Remark read the same per-cycle value. 1 = upstream behaviour.
-- Results: see below (in progress).
+Manageable (-XX:G1ClassUnloadingInterval can be changed at run time through HotSpotDiagnosticMXBean).
+- Flight soak x2 vs the QoS build (every cycle unloads): Remark time 236 vs 389 ms and 211 vs 345 ms (-39%), Remarks over
+  8 ms 4 vs 9 and 5 vs 11. Cycles that keep classes end in a 0.5-1.4 ms Remark; the unloading ones carry the work of the
+  skipped cycles (~27 ms on average, up to 104-127 ms during JIT warm-up). Code cache the same (bounded by the code-cache
+  cycles, which always unload).
+- With Cadence's GC policy scheduling the unloading cycles into menus (interval 12 during play, 1 for a cycle it starts
+  while a menu is open), a flight with the pause menu opened every ~30 s: every unloading Remark (18, 57, 26, 9, 11 ms)
+  happened in a menu; every Remark during play took 0.5-3.7 ms, G1's own safety-net cycles included. The same flight on
+  stock G1 had 126 Remarks of 8-100 ms.
