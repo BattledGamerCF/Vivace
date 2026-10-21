@@ -177,3 +177,48 @@ GPLv2 sources. Vivace's own patches are GPLv2 (they already are: same headers as
 8. Prism and other launchers' per-instance Java keys.
 9. Mojang launcher version checks with a user-chosen JVM.
 10. Windows and Linux distribution rules (not researched).
+
+---
+
+# Legal pass: what was decided and done (main session, 2026-10-21)
+
+## How Cadence runs on Vivace: the chosen model
+**(a) + (b): Vivace is its own download; Cadence restarts the game on an installed Vivace only when the player chooses it.**
+- Cadence: Video Settings > Java: Launcher's / Vivace (off by default; `cadence.java=` for hand config). At the start of
+  loading, the restart Cadence already does for its Java defaults (execve, same process) goes to Vivace's `java`.
+- Separate programs: exec, the release file, `-version`, and one documented MXBean call (setVMOption on a MANAGEABLE flag).
+  No HotSpot headers, no libjvm symbols, no Vivace code in the jar; nothing downloaded, nothing bundled.
+- Consent and fallback: off unless chosen. Before switching, a `-version` probe with the player's -XX options. Refused
+  option, quarantine block, or a start that never reached the game: the launcher's Java is used and the settings screen
+  says why. Found in ~/Library/Application Support/Vivace (doesn't change Terminal's default `java`) or the system Java
+  folders.
+- Tested: 15 offline checks (tools/logic-tests/VivaceCheck.java); live, a Zulu 25 launch restarted onto Vivace 27.
+
+## GPL compliance of Vivace releases: checklist status
+| Item | Status |
+|---|---|
+| Complete corresponding source next to the binaries | yes: `-src.tar.xz` of the release branch |
+| Scripts that control compilation (GPLv2 s3) | **fixed today**: the source archive now also holds `vivace/build-tools/` (release script, metal/metallib stand-ins) and the docs |
+| Change notices in modified files (s2(a)) | yes: every modified file, both lines; PATCHES.md lists each change |
+| LICENSE, ASSEMBLY_EXCEPTION, ADDITIONAL_LICENSE_INFO, third-party notices | yes: `legal/<module>/` in the JDK and the runtime (checked in the 27 runtime) |
+| Classpath Exception headers kept | yes: patches only add lines |
+| No further restrictions (s6) | yes: no EULA, no click-through |
+| Bug reports not sent to Oracle | **fixed today**: java.vendor.url, .url.bug and the VM crash-report URL point at the project |
+| Trademark legend, "based on OpenJDK", no Java SE claim | README.md and INSTALL.md (added today) |
+| "OpenJDK" in `java -version` | kept as upstream writes it (other builds do the same; the notice allows it for near-identical builds; launchers parse it). Counsel to confirm |
+| Runtime release file names the implementor | **fixed today** (`IMPLEMENTOR="Vivace"`) |
+
+## Cadence side
+- docs/LICENSING.md section 5 and README: Vivace is a separate program, described in text; never uploaded to Modrinth or
+  CurseForge, never in a modpack, no download link in the CurseForge description.
+- The Apache-2.0 / GPLv2 incompatibility means no code moves between the two projects in either direction.
+
+## Only the user can do these (before a public Vivace release)
+1. Notarization: an Apple Developer ID (paid account) to sign and notarize the .jdk bundles; until then, the INSTALL.md
+   quarantine step.
+2. A formal trademark clearance search for "Vivace" (software classes 9 and 42; US, EU, UK, WIPO).
+3. Read the Minecraft EULA and Usage Guidelines in full (the agent could not fetch them).
+4. Ask CurseForge moderators whether a text mention of Vivace's GitHub releases is acceptable in a project description.
+5. Optionally, counsel on the open questions above (bindings reading, trademark wording).
+6. A public repository for Vivace (the vendor URLs point at the Cadence repository until then: change VENDOR_URL in
+   build-tools/build-release.sh).

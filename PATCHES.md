@@ -1,7 +1,11 @@
-# Patches on top of OpenJDK 25 (jdk25u)
+# Patches on top of OpenJDK 25 (jdk25u) and 27 (jdk27u)
 
-Each patch is one commit on the `vivace-25.0.5` branch of the OpenJDK checkout (src-release, from tag jdk-25.0.5-ga), with
-a change notice in every file it touches (GPLv2 section 2(a)). Measured with Cadence's harness: Minecraft 26.3 + Cadence,
+Two lines, the same patches:
+- **Vivace 27** (`vivace-27.0.1` branch of src27, from tag jdk-27.0.1-ga, built with a JDK 26 built from jdk26u
+  jdk-26.0.2.1-ga): patches 1-3 below, ported (section "Vivace 27"); 4 is upstream's default there.
+- **Vivace 25** (`vivace-25.0.5` branch of src-release, from tag jdk-25.0.5-ga): patches 1-4.
+
+Each patch is one commit, with a change notice in every file it touches (GPLv2 section 2(a)). Measured with Cadence's harness: Minecraft 26.3 + Cadence,
 an M2 MacBook Air (4 P + 4 E cores, 8 GB), a 4-minute flight over new terrain (`gcsoak.sh`, -Xmx2048m) and the benchmark
 turn (`gcab.sh`), interleaved A/B runs against the same source built without the patch (never against another vendor's
 binary, so the build itself is not a variable).
@@ -67,6 +71,33 @@ JEP 519 (product in JDK 25) shrinks object headers from 12-16 to 8 bytes; upstre
 -XX:-UseCompressedClassPointers turns it back off with a warning). Cadence's Java defaults already set it, so with Cadence
 nothing changes; for other games it saves heap (Cadence measured ~23 MB of Minecraft's heap on 10-12; JEP 519: up to 22%
 less heap on SPECjbb).
+
+## Vivace 27: the same patches on JDK 27.0.1
+Why rebase: flag-level tuning of 25 found nothing more (UseSIMDForMemoryOps, an isb spin-wait, MaxTenuringThreshold,
+ParallelGCThreads, AOT cache: all no gain), and the bigger G1 changes since 25 (JEP 522's second card table in 26, lazy
+W^X switching and G1 heap sizing by GC time in 26/27) are too large to backport. Minecraft 26.3 (Java 25 class files),
+Fabric and Cadence run on 27 unchanged.
+- Port: patch 1 (Java2D loader) applied as is. Patch 2 (UseThreadQoS): the flag is declared in both of 27's
+  RUNTIME_OS_FLAGS variants (Apple Silicon and Intel). Patch 3: JDK 27 has no G1Policy::initiate_conc_mark; the
+  per-cycle decision moved into G1Policy::decide_on_class_unloading, called from decide_on_concurrent_start_pause when it
+  chose a concurrent start (both of its paths); root closures and Remark read it as before. 10 files, 151 lines.
+- JDK 27 deprecates -XX:InitiatingHeapOccupancyPercent in favour of -XX:G1IHOP (same meaning; the old name still works
+  with a warning at every start). Cadence passes G1IHOP to Java 27+.
+- Plain JDK 27 vs Vivace 25, crowded scene, ABBA: fps 1,053 / 1,099 vs 1,052 / 1,084; render CPU 0.49 / 0.47 vs 0.51 /
+  0.49 ms a frame; server tick 4.03 / 3.90 vs 3.73 / 3.91 ms. No CPU difference beyond noise.
+- **Vivace 27 vs Vivace 25**, flight over new terrain with the pause menu every ~30 s (gcmenu, -Xmx1280m), ABBA:
+
+| | Vivace 25 | Vivace 27 |
+|---|---|---|
+| young pauses | 190 / 192, 1,253 / 1,005 ms | 383 / 291, 1,273 / 1,105 ms |
+| young pauses over 8 ms | 50 / 31 | **20 / 23** |
+| longest young pause | 69.9 / 19.6 ms | 20.5 / 18.8 ms |
+| heap committed, peak | 1,024 / 1,016 MB | **750 / 786 MB** |
+| Remark in play (total, longest) | 54 ms, 26.7 / 28 ms, 13.6 | 51 ms, 22.1 / 65 ms, 27.5 |
+| code cache filled during the run | 27 / 24 MB | 34 / 26 MB |
+
+  JDK 27's G1 keeps a smaller heap (about 250 MB less) and collects it in more, shorter young pauses: the same total
+  pause time, half as many over 8 ms. The unloading Remarks still land in menus.
 
 ## Stability
 - jtreg on the release build (G1ClassUnloadingInterval 4, compact headers on): test/hotspot/jtreg/gc/g1 61 passed, 14 not run

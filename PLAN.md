@@ -41,3 +41,16 @@ shaders), GNU make 3.81, bash 3.2, no autoconf yet (Homebrew), boot JDK Zulu 25.
 - [x] jtreg: G1 + class unloading suites: 77 passed, 0 failed
 - [x] 34-minute stability soak: no crash, no growth
 - [x] Windows/Linux: CROSS-PLATFORM.md (theoretical)
+
+## Status (2026-10-21 day: optimization, testing, legal)
+- [x] Research: research/OPTIMIZE.md (one Haiku agent): nothing flag-level left; the lever is the JDK version
+- [x] Flag tests on 25 (UseSIMDForMemoryOps, isb spin-wait): no gain (CPU benchmark ABBA)
+- [x] JDK 26 built (boot JDK), JDK 27.0.1 built; Minecraft 26.3 + Fabric + Cadence run on 27 unchanged
+- [x] Plain 27 vs Vivace 25: same CPU. Patches ported to 27 (10 files, 151 lines)
+- [x] Vivace 27 vs Vivace 25: heap -25% (about 250 MB), young pauses over 8 ms halved, same total pause time
+- [x] Release script: either line, vendor/bug URLs, runtime release file, build scripts in the source archive, game runtime
+      without the >32 GB-heap class-data archives; dist/vivace-27.0.1+9-vivace.1/
+- [ ] jtreg on Vivace 27 (gc/g1, class unloading, gc/arguments, dcmd/vm, runtime/Thread)
+- [ ] 30-minute soak and a production launch (18 mods) on Vivace 27
+- [x] Legal pass: research/LEGAL2.md (model, checklist, user-only steps); Cadence's opt-in Java switch (Video Settings >
+      Java), README/INSTALL licence and trademark wording
