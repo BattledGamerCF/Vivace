@@ -43,3 +43,17 @@ Manageable (-XX:G1ClassUnloadingInterval can be changed at run time through HotS
 - **-mcpu=apple-m1 + link-time-opt** (HotSpot and JDK C code built for Apple's cores, the JVM link-time optimized): flight
   soak x2 A/B against the same source built plainly: young pause time 2,009 / 1,827 vs 2,012 / 2,114 ms, Remark 144 / 158 vs
   170 / 165 ms, worst young pause 37 / 62 vs 20 / 28 ms: no difference beyond run-to-run noise. Not used (less to go wrong).
+
+## Release vs Zulu 25.0.2 (what players use today), Cadence beta.10, flight with the pause menu every ~30 s
+Remarks split by where they happened (pause-menu windows from the self-test log):
+
+| during play | Zulu | Vivace 25.0.5+8-vivace.1 |
+|---|---|---|
+| Remark time | 194 / 251 ms | **52 / 67 ms** (-73%) |
+| Remarks over 8 ms | 7 / 9 | **3 / 3** |
+| longest Remark | 64 / 87 ms | **22 / 23 ms** |
+
+The long Remarks moved into the menu (up to 180 ms there, unseen). Young pauses and heap size: the same once the Mac's heat
+is accounted for: whichever runs second in a pair (hotter, fanless Air) shows more young-pause time and a bigger heap (G1
+grows the heap when GC takes a larger share of time): Vivace first 771 MB, Zulu second 1,001 MB; Zulu first 779 MB, Vivace
+second 1,229 MB. Flag defaults differ only in Azul's own CRS switches and the 25.0.5 Shenandoah changes.
