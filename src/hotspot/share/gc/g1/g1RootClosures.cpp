@@ -22,6 +22,8 @@
  *
  */
 
+// Modified 2026-10-20 by the Vivace project (a macOS-first OpenJDK build; see its PATCHES.md): G1ClassUnloadingInterval: concurrent-start root marking follows the cycle decision.
+
 #include "gc/g1/g1OopClosures.inline.hpp"
 #include "gc/g1/g1RootClosures.hpp"
 #include "gc/g1/g1SharedClosures.hpp"

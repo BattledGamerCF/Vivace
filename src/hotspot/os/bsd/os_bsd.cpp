@@ -22,6 +22,8 @@
  *
  */
 
+// Modified 2026-10-20 by the Vivace project (a macOS-first OpenJDK build; see its PATCHES.md): UseThreadQoS: quality-of-service classes for JVM threads on macOS.
+
 #include "classfile/vmSymbols.hpp"
 #include "code/vtableStubs.hpp"
 #include "compiler/compileBroker.hpp"

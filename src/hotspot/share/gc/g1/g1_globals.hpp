@@ -22,6 +22,8 @@
  *
  */
 
+// Modified 2026-10-20 by the Vivace project (a macOS-first OpenJDK build; see its PATCHES.md): G1ClassUnloadingInterval flag.
+
 #ifndef SHARE_GC_G1_G1_GLOBALS_HPP
 #define SHARE_GC_G1_G1_GLOBALS_HPP
 

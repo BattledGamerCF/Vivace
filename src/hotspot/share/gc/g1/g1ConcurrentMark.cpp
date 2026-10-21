@@ -22,6 +22,8 @@
  *
  */
 
+// Modified 2026-10-20 by the Vivace project (a macOS-first OpenJDK build; see its PATCHES.md): G1ClassUnloadingInterval: Remark unloads only in the cycles chosen.
+
 #include "classfile/classLoaderData.hpp"
 #include "classfile/classLoaderDataGraph.hpp"
 #include "gc/g1/g1BarrierSet.hpp"

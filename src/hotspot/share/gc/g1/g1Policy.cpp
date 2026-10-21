@@ -22,6 +22,8 @@
  *
  */
 
+// Modified 2026-10-20 by the Vivace project (a macOS-first OpenJDK build; see its PATCHES.md): G1ClassUnloadingInterval: the per-cycle decision at concurrent start.
+
 #include "gc/g1/g1Allocator.hpp"
 #include "gc/g1/g1Analytics.hpp"
 #include "gc/g1/g1Arguments.hpp"

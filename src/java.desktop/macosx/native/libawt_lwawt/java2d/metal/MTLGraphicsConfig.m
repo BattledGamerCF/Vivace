@@ -23,6 +23,8 @@
  * questions.
  */
 
+// Modified 2026-10-20 by the Vivace project (a macOS-first OpenJDK build; see its PATCHES.md): loads shaders.metallib as Metal source when it is not a compiled library (built without Xcode).
+
 #import "sun_java2d_metal_MTLGraphicsConfig.h"
 
 #import "MTLGraphicsConfig.h"
