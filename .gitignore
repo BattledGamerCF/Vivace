@@ -1,0 +1,7 @@
+# the OpenJDK checkouts (their own git repository and worktrees) and build output
+/src/
+/src-game/
+/src-release/
+/out/
+/dist/
+*.log

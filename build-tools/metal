@@ -1,0 +1,34 @@
+#!/bin/bash
+# Stand-in for Xcode's `metal` compiler (this Mac has only the Command Line Tools). The JDK build runs
+#   metal -c -std=osx-metal2.0 -mmacosx-version-min=V -o OUT.air IN.metal
+# and then metallib on OUT.air; here the .air carries the Metal source itself, and the JDK's Java2D loader (patched)
+# compiles it with the Metal API at first use. `metal --version` must succeed for configure.
+out=""; in=""
+while [ $# -gt 0 ]; do
+  case "$1" in
+    --version|-v) echo "metal stand-in (source pass-through; compiled at runtime by MTLDevice newLibraryWithSource)"; exit 0 ;;
+    -o) out="$2"; shift ;;
+    -*) ;;
+    *) in="$1" ;;
+  esac
+  shift
+done
+[ -n "$out" ] && [ -f "$in" ] || { echo "metal stand-in: usage -o OUT IN" >&2; exit 2; }
+# quoted includes (common.h) inlined, so the carried source compiles on its own at runtime
+/usr/bin/python3 - "$in" "$out" <<'PY'
+import os, re, sys
+src, out = sys.argv[1], sys.argv[2]
+def expand(path, seen):
+    lines = []
+    for line in open(path, encoding='utf-8'):
+        m = re.match(r'\s*#\s*include\s+"([^"]+)"', line)
+        inc = os.path.join(os.path.dirname(path), m.group(1)) if m else None
+        if inc and os.path.isfile(inc):
+            if inc not in seen:
+                seen.add(inc)
+                lines.append(expand(inc, seen))
+            continue
+        lines.append(line)
+    return ''.join(lines)
+open(out, 'w', encoding='utf-8').write(expand(src, set()))
+PY

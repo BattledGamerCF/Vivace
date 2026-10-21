@@ -1,0 +1,14 @@
+#!/bin/bash
+# Stand-in for Xcode's `metallib` (see ./metal): copies the source-carrying .air to the .metallib path.
+out=""; in=""
+while [ $# -gt 0 ]; do
+  case "$1" in
+    --version|-v) echo "metallib stand-in (source pass-through)"; exit 0 ;;
+    -o) out="$2"; shift ;;
+    -*) ;;
+    *) in="$1" ;;
+  esac
+  shift
+done
+[ -n "$out" ] && [ -f "$in" ] || { echo "metallib stand-in: usage -o OUT IN" >&2; exit 2; }
+cp "$in" "$out"
