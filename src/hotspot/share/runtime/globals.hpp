@@ -22,6 +22,8 @@
  *
  */
 
+// Modified 2026-10-21 by the Vivace project (a macOS-first OpenJDK build; see its PATCHES.md): UseCompactObjectHeaders on by default.
+
 #ifndef SHARE_RUNTIME_GLOBALS_HPP
 #define SHARE_RUNTIME_GLOBALS_HPP
 
@@ -128,8 +130,10 @@ const size_t minimumSymbolTableSize = 1024;
           "(Deprecated) Use 32-bit class pointers in 64-bit VM. "           \
           "lp64_product means flag is always constant in 32 bit VM")        \
                                                                             \
-  product(bool, UseCompactObjectHeaders, false,                             \
-          "Use compact 64-bit object headers in 64-bit VM")                 \
+  product(bool, UseCompactObjectHeaders, true,                              \
+          "Use compact 64-bit object headers in 64-bit VM (Vivace: on by "  \
+          "default, JEP 519; -XX:-UseCompactObjectHeaders for the upstream "\
+          "layout)")                                                        \
                                                                             \
   product(int, ObjectAlignmentInBytes, 8,                                   \
           "Default object alignment in bytes, 8 is minimum")                \
