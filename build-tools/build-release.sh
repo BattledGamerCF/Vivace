@@ -51,6 +51,6 @@ codesign --verify --verbose=1 "$RT/bin/java" && codesign --verify "$RT/lib/serve
 ( cd "$DIST" && tar -czf "$NAME_LC-$VERSION-macos-aarch64-runtime.tar.gz" "$NAME-$VERSION-runtime.jdk" && rm -rf "$NAME-$VERSION-runtime.jdk" )
 # the complete corresponding source: this branch, as committed
 git -C "$SRC" archive --format=tar --prefix="$NAME_LC-$VERSION-src/" HEAD | xz -T4 -6 > "$DIST/$NAME_LC-$VERSION-src.tar.xz"
-cp "$ROOT/README.md" "$ROOT/PATCHES.md" "$DIST/"
+cp "$ROOT/README.md" "$ROOT/PATCHES.md" "$ROOT/INSTALL.md" "$DIST/"
 ( cd "$DIST" && shasum -a 256 *.tar.* > SHA256SUMS )
 ls -la "$DIST"
