@@ -28,6 +28,18 @@
 #include "GraphicsPrimitiveMgr.h"
 #import "MTLComposite.h"
 
+// Built without Xcode, the JDK's shaders.metallib holds the Metal source instead of a compiled library (the build's
+// metal/metallib steps pass the source through); it is then compiled here with the Metal API, which needs no Xcode.
+static id<MTLLibrary> MTLLoadShadersFile(id<MTLDevice> device, NSString* path, NSError** error) {
+    id<MTLLibrary> lib = [device newLibraryWithFile:path error:error];
+    if (lib != nil) return lib;
+    NSString* source = [NSString stringWithContentsOfFile:path encoding:NSUTF8StringEncoding error:nil];
+    if (source == nil || [source rangeOfString:@"#include <metal_stdlib>"].location == NSNotFound) return nil;
+    MTLCompileOptions* options = [[MTLCompileOptions new] autorelease];
+    options.languageVersion = MTLLanguageVersion2_0;
+    return [device newLibraryWithSource:source options:options error:error];
+}
+
 #include "sun_java2d_SunGraphics2D.h"
 
 extern const SurfaceRasterFlags defaultRasterFlags;
@@ -51,7 +63,7 @@ static void setBlendingFactors(
     self.device = dev;
 
     NSError *error = nil;
-    self.library = [dev newLibraryWithFile:shadersLib error:&error];
+    self.library = MTLLoadShadersFile(dev, shadersLib, &error);
     if (!self.library) {
         J2dRlsTraceLn(J2D_TRACE_ERROR, "MTLPipelineStatesStorage.initWithDevice() - Failed to load Metal shader library.");
         return nil;

@@ -29,6 +29,18 @@
 #import "ThreadUtilities.h"
 #import "awt.h"
 
+// Built without Xcode, the JDK's shaders.metallib holds the Metal source instead of a compiled library (the build's
+// metal/metallib steps pass the source through); it is then compiled here with the Metal API, which needs no Xcode.
+static id<MTLLibrary> MTLLoadShadersFile(id<MTLDevice> device, NSString* path, NSError** error) {
+    id<MTLLibrary> lib = [device newLibraryWithFile:path error:error];
+    if (lib != nil) return lib;
+    NSString* source = [NSString stringWithContentsOfFile:path encoding:NSUTF8StringEncoding error:nil];
+    if (source == nil || [source rangeOfString:@"#include <metal_stdlib>"].location == NSNotFound) return nil;
+    MTLCompileOptions* options = [[MTLCompileOptions new] autorelease];
+    options.languageVersion = MTLLanguageVersion2_0;
+    return [device newLibraryWithSource:source options:options error:error];
+}
+
 /**
  * Disposes all memory and resources associated with the given
  * MTLGraphicsConfigInfo (including its native MTLContext data).
@@ -69,7 +81,7 @@ JNI_COCOA_ENTER(env);
         id<MTLDevice> device = CGDirectDisplayCopyCurrentMetalDevice(displayID);
         if (device != nil) {
             NSError* error = nil;
-            id<MTLLibrary> lib = [device newLibraryWithFile:path error:&error];
+            id<MTLLibrary> lib = MTLLoadShadersFile(device, path, &error);
             if (lib != nil) {
                 ret = JNI_TRUE;
             } else {
