@@ -28,10 +28,14 @@ benchmark scene, flight soak, footprint.
 M2 MacBook Air, 8 GB RAM, ~33 GB free, Command Line Tools only (no Xcode: no `metal` compiler for java.desktop's Java2D
 shaders), GNU make 3.81, bash 3.2, no autoconf yet (Homebrew), boot JDK Zulu 25.
 
-## Status
-- [ ] Research: BUILD.md, APPLE.md, LEGAL.md (three agents)
-- [ ] Name
-- [ ] Source + a stock build (baseline)
-- [ ] Patches, each measured
-- [ ] Runtime image (jlink), signing, packaging
-- [ ] Windows/Linux: build recipes / CI workflow (untested here)
+## Status (2026-10-21 ~00:15)
+- [x] Research: research/BUILD.md, APPLE.md, LEGAL.md (three Haiku agents)
+- [x] Name: working name **Vivace** (shortlist in LEGAL.md; the user picks; trademark search still needed)
+- [x] Source: jdk25u jdk-25.0.2+10 (A/B baseline, src/) and jdk-25.0.5-ga (release, src-release/)
+- [x] Builds without Xcode (stand-in metal tools + runtime shader compile); a full build takes ~5 min on the M2
+- [x] Patch: UseThreadQoS (worst young pauses about -1/3)
+- [x] Patch: G1ClassUnloadingInterval, manageable (Remark -39%; with Cadence scheduling, every in-play Remark 0.5-3.7 ms)
+- [ ] -mcpu=apple-m1 + link-time-opt build (A/B running)
+- [ ] Release build + packaging (build-tools/build-release.sh), ad-hoc signing, game runtime, source archive
+- [ ] Run Minecraft on the release runtime end to end (Cadence harness), production launch
+- [x] Windows/Linux: CROSS-PLATFORM.md (theoretical)
