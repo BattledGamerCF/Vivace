@@ -38,3 +38,8 @@ Manageable (-XX:G1ClassUnloadingInterval can be changed at run time through HotS
   while a menu is open), a flight with the pause menu opened every ~30 s: every unloading Remark (18, 57, 26, 9, 11 ms)
   happened in a menu; every Remark during play took 0.5-3.7 ms, G1's own safety-net cycles included. The same flight on
   stock G1 had 126 Remarks of 8-100 ms.
+
+## Tried and not kept
+- **-mcpu=apple-m1 + link-time-opt** (HotSpot and JDK C code built for Apple's cores, the JVM link-time optimized): flight
+  soak x2 A/B against the same source built plainly: young pause time 2,009 / 1,827 vs 2,012 / 2,114 ms, Remark 144 / 158 vs
+  170 / 165 ms, worst young pause 37 / 62 vs 20 / 28 ms: no difference beyond run-to-run noise. Not used (less to go wrong).

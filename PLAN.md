@@ -35,7 +35,7 @@ shaders), GNU make 3.81, bash 3.2, no autoconf yet (Homebrew), boot JDK Zulu 25.
 - [x] Builds without Xcode (stand-in metal tools + runtime shader compile); a full build takes ~5 min on the M2
 - [x] Patch: UseThreadQoS (worst young pauses about -1/3)
 - [x] Patch: G1ClassUnloadingInterval, manageable (Remark -39%; with Cadence scheduling, every in-play Remark 0.5-3.7 ms)
-- [ ] -mcpu=apple-m1 + link-time-opt build (A/B running)
+- [x] -mcpu=apple-m1 + link-time-opt: measured, no gain, not used
 - [ ] Release build + packaging (build-tools/build-release.sh), ad-hoc signing, game runtime, source archive
 - [ ] Run Minecraft on the release runtime end to end (Cadence harness), production launch
 - [x] Windows/Linux: CROSS-PLATFORM.md (theoretical)
