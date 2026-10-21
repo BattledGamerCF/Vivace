@@ -97,6 +97,9 @@
 # include <sys/types.h>
 # include <time.h>
 # include <unistd.h>
+#ifdef __APPLE__
+# include <pthread/qos.h>
+#endif
 
 #if defined(__FreeBSD__) || defined(__NetBSD__)
   #include <elf.h>
@@ -649,6 +652,31 @@ static void *thread_native_entry(Thread *thread) {
   return nullptr;
 }
 
+#ifdef __APPLE__
+// UseThreadQoS: the quality-of-service class a new JVM thread starts with (QOS_CLASS_UNSPECIFIED: inherited, as before).
+// On Apple Silicon QoS decides which cores a thread may run on: a stop-the-world GC pause lasts as long as its slowest
+// worker, and workers on efficiency cores stretch it; background GC work, on the other hand, needn't take the fast cores
+// from the application. Only with G1 and Parallel GC, whose stop-the-world workers ("GC Thread#") are separate threads
+// from their concurrent ones; ZGC and Shenandoah do their main work concurrently and keep the inherited class.
+static qos_class_t thread_qos_class(Thread* thread, os::ThreadType thr_type) {
+  if (!UseThreadQoS || !(UseG1GC || UseParallelGC)) return QOS_CLASS_UNSPECIFIED;
+  switch (thr_type) {
+    case os::vm_thread:
+      return QOS_CLASS_USER_INTERACTIVE;
+    case os::gc_thread: {
+      const char* name = thread->name();
+      if (name != nullptr && strncmp(name, "GC Thread", 9) == 0) return QOS_CLASS_USER_INTERACTIVE;
+      return QOS_CLASS_UTILITY;
+    }
+    case os::watcher_thread:
+    case os::asynclog_thread:
+      return QOS_CLASS_UTILITY;
+    default:
+      return QOS_CLASS_UNSPECIFIED;
+  }
+}
+#endif
+
 bool os::create_thread(Thread* thread, ThreadType thr_type,
                        size_t req_stack_size) {
   assert(thread->osthread() == nullptr, "caller responsible");
@@ -678,6 +706,13 @@ bool os::create_thread(Thread* thread, ThreadType thr_type,
   size_t stack_size = os::Posix::get_initial_stack_size(thr_type, req_stack_size);
   int status = pthread_attr_setstacksize(&attr, stack_size);
   assert_status(status == 0, status, "pthread_attr_setstacksize");
+
+#ifdef __APPLE__
+  qos_class_t qos = thread_qos_class(thread, thr_type);
+  if (qos != QOS_CLASS_UNSPECIFIED) {
+    pthread_attr_set_qos_class_np(&attr, qos, 0);
+  }
+#endif
 
   ThreadState state;
 

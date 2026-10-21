@@ -41,7 +41,15 @@
   develop(bool, UseOldWX, false,                                        \
           "Choose old W^X implementation.")                             \
   product(bool, StressWXHealing, false, DIAGNOSTIC,                     \
-          "Stress W xor X healing on MacOS")
+          "Stress W xor X healing on MacOS")                            \
+                                                                        \
+  product(bool, UseThreadQoS, true,                                     \
+          "macOS: give the JVM's own threads a quality-of-service class " \
+          "(with G1 or Parallel GC): the VM thread and the stop-the-"   \
+          "world GC workers user-interactive (fastest cores while the " \
+          "application is paused), concurrent GC and housekeeping "     \
+          "threads utility (efficiency cores, leaving the fast cores "  \
+          "to the application); Java and compiler threads unchanged")
 
 #else
 #define RUNTIME_OS_FLAGS(develop,                                       \
@@ -49,7 +57,15 @@
                          product,                                       \
                          product_pd,                                    \
                          range,                                         \
-                         constraint)
+                         constraint)                                    \
+                                                                        \
+  product(bool, UseThreadQoS, true,                                     \
+          "macOS: give the JVM's own threads a quality-of-service class " \
+          "(with G1 or Parallel GC): the VM thread and the stop-the-"   \
+          "world GC workers user-interactive (fastest cores while the " \
+          "application is paused), concurrent GC and housekeeping "     \
+          "threads utility (efficiency cores, leaving the fast cores "  \
+          "to the application); Java and compiler threads unchanged")
 #endif
 
 // end of RUNTIME_OS_FLAGS
