@@ -77,6 +77,7 @@ G1Policy::G1Policy(STWGCTimer* gc_timer) :
   _max_survivor_regions(0),
   _survivors_age_table(true)
 {
+  _cycles_since_class_unloading = 0;
 }
 
 G1Policy::~G1Policy() {
@@ -1334,12 +1335,33 @@ void G1Policy::decide_on_concurrent_start_pause() {
       log_debug(gc, ergo)("Do not initiate concurrent cycle (concurrent cycle already in progress)");
     }
   }
+  if (collector_state()->is_in_concurrent_start_gc()) {
+    decide_on_class_unloading();
+  }
   // Result consistency checks.
   // We do not allow concurrent start to be piggy-backed on a mixed GC.
   assert(!collector_state()->is_in_concurrent_start_gc() ||
          collector_state()->is_in_young_only_phase(), "sanity");
   // We also do not allow mixed GCs during marking/rebuilding.
   assert(!collector_state()->is_in_mark_or_rebuild() || collector_state()->is_in_young_only_phase(), "sanity %d %d", collector_state()->is_in_concurrent_cycle(), collector_state()->is_in_young_only_phase());
+}
+
+// G1ClassUnloadingInterval: decided at the cycle's concurrent start, because it changes how this pause marks its roots
+// (class loaders and compiled code strongly when the cycle won't unload) as well as Remark's work.
+void G1Policy::decide_on_class_unloading() {
+  bool unload = false;
+  if (ClassUnloadingWithConcurrentMark) {
+    GCCause::Cause cause = _g1h->gc_cause();
+    bool pressure = GCCause::is_codecache_requested_gc(cause) ||
+                    cause == GCCause::_metadata_GC_threshold ||
+                    cause == GCCause::_metadata_GC_clear_soft_refs ||
+                    cause == GCCause::_wb_breakpoint;
+    unload = pressure || G1ClassUnloadingInterval <= 1 || _cycles_since_class_unloading + 1 >= G1ClassUnloadingInterval;
+  }
+  _cycles_since_class_unloading = unload ? 0 : _cycles_since_class_unloading + 1;
+  _g1h->concurrent_mark()->set_class_unloading_this_cycle(unload);
+  log_debug(gc, ergo)("Concurrent cycle %s classes and code (cause: %s, cycles since the last unloading: %u)",
+                      unload ? "unloads" : "keeps", GCCause::to_string(_g1h->gc_cause()), _cycles_since_class_unloading);
 }
 
 void G1Policy::record_concurrent_mark_cleanup_end(bool has_rebuilt_remembered_sets) {

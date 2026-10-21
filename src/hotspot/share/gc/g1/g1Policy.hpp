@@ -347,6 +347,14 @@ public:
   // This must be called at the very beginning of an evacuation pause.
   void decide_on_concurrent_start_pause();
 
+private:
+  // G1ClassUnloadingInterval: marking cycles started since the last one that unloaded classes and code.
+  uint _cycles_since_class_unloading;
+  // G1ClassUnloadingInterval: whether the concurrent start pause just decided on starts a cycle that unloads classes.
+  void decide_on_class_unloading();
+
+public:
+
   uint young_list_desired_length() const { return _young_list_desired_length.load_relaxed(); }
   uint young_list_target_length() const { return _young_list_target_length.load_relaxed(); }
 

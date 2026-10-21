@@ -335,6 +335,15 @@
   product(bool, G1VerifyBitmaps, false, DIAGNOSTIC,                         \
           "Verifies the consistency of the marking bitmaps")                \
                                                                             \
+  product(uint, G1ClassUnloadingInterval, 4, MANAGEABLE,                    \
+          "With ClassUnloadingWithConcurrentMark, unload classes and "      \
+          "compiled code in every Nth concurrent marking cycle only (1 is " \
+          "every cycle, as upstream). Cycles started for code cache or "    \
+          "metaspace pressure always unload, so neither grows without "     \
+          "bound. Applications that rarely unload classes (games) skip "    \
+          "most Remark class-unloading work this way.")                     \
+          range(1, max_juint)                                               \
+                                                                            \
   product(uintx, G1PeriodicGCInterval, 0, MANAGEABLE,                       \
           "Number of milliseconds after a previous GC to wait before "      \
           "triggering a periodic gc. A value of zero disables periodically "\
