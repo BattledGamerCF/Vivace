@@ -340,6 +340,8 @@ private:
   // _initiate_conc_mark_if_possible because it has now been
   // acted on.
   void initiate_conc_mark();
+  // G1ClassUnloadingInterval: marking cycles started since the last one that unloaded classes and code.
+  uint _cycles_since_class_unloading;
 
 public:
   // This sets the initiate_conc_mark_if_possible() flag to start a

@@ -551,6 +551,9 @@ class G1ConcurrentMark : public CHeapObj<mtGC> {
   HeapWord* volatile* _top_at_rebuild_starts;
   // True when Remark pause selected regions for rebuilding.
   bool _needs_remembered_set_rebuild;
+  // Whether the current (or last started) marking cycle unloads classes and code (G1ClassUnloadingInterval); decided at
+  // its concurrent start, read by that pause's root closures and by Remark.
+  bool _class_unloading_this_cycle;
 public:
   // To be called when an object is marked the first time, e.g. after a successful
   // mark_in_bitmap call. Updates various statistics data.
@@ -724,6 +727,9 @@ private:
   void rebuild_and_scrub();
 
   uint needs_remembered_set_rebuild() const { return _needs_remembered_set_rebuild; }
+
+  bool class_unloading_this_cycle() const { return _class_unloading_this_cycle; }
+  void set_class_unloading_this_cycle(bool value) { _class_unloading_this_cycle = value; }
 };
 
 // A class representing a marking task.

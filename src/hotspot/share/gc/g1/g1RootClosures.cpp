@@ -73,7 +73,7 @@ G1EvacuationRootClosures* G1EvacuationRootClosures::create_root_closures(G1Colle
                                                                          bool process_only_dirty_klasses) {
   G1EvacuationRootClosures* res = nullptr;
   if (g1h->collector_state()->in_concurrent_start_gc()) {
-    if (ClassUnloadingWithConcurrentMark) {
+    if (g1h->concurrent_mark()->class_unloading_this_cycle()) {
       res = new G1ConcurrentStartMarkClosures<false>(g1h, pss);
     } else {
       res = new G1ConcurrentStartMarkClosures<true>(g1h, pss);
