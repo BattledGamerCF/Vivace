@@ -22,6 +22,8 @@
  *
  */
 
+// Modified 2026-10-20 (ported to JDK 27 on 2026-10-21) by the Vivace project (a macOS-first OpenJDK build; see its PATCHES.md): UseThreadQoS flag.
+
 #ifndef OS_BSD_GLOBALS_BSD_HPP
 #define OS_BSD_GLOBALS_BSD_HPP
 
